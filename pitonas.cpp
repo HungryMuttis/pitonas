@@ -7,7 +7,7 @@ static void registerBuiltins(Storage& builtins)
     // printing
     builtins.add(L"atspausdink", [](std::vector<std::wstring> args) {
         for (std::wstring string : args)
-            std::wcout << string << L' ';
+            std::wcout << string;
         std::wcout << std::endl;
         return L"";
     });
@@ -22,7 +22,7 @@ static void registerBuiltins(Storage& builtins)
     // input
     builtins.add(L"įvesk", [](std::vector<std::wstring> args) {
         for (std::wstring string : args)
-            std::wcout << string << L' ';
+            std::wcout << string;
         std::wstring line;
         std::getline(std::wcin, line);
         return line;
