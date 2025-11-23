@@ -19,6 +19,8 @@ void ConsoleController::showError(std::wstring message) const
 void ConsoleController::showFatal(std::string message) const
 {
 	this->showFatal(ToWString(message));
+	std::wcout << std::endl;
+	system("pause");
 }
 void ConsoleController::showFatal(std::wstring message) const
 {
