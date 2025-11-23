@@ -12,41 +12,40 @@ void PitonRuntime::addFuntions(Storage& functions)
 {
 	this->functions.merge(functions);
 }
-void PitonRuntime::usingConsole(bool setting)
+
+void PitonRuntime::run(int argc, char* argv[])
 {
-	this->console = setting;
-}
-
-void PitonRuntime::run()
-{
-    if (this->console) std::wcout << L"--- Pitono konsolė ---\n";
-
-    std::wistream* inStream = this->console ? &std::wcin : this->input;
-
-    if (!inStream) return;
+    if (!this->input) return;
 
     Block block;
-    std::wstring line;
 
-    while (true)
+    try
     {
-        if (this->console) std::wcout << L">>> ";
-        if (!std::getline(*inStream, line)) break;
-        if (line.empty()) continue;
+        for (int i = 0; i < argc; i++)
+            block.define(L"argv" + std::to_wstring(i));
+        block.build([this]() -> wchar_t {
+            wchar_t c;
+            if (this->input->get(c))
+                return c;
+            return WEOF;
+        });
 
-        block.addLine(line);
-
-        try
+        std::vector<std::wstring> args;
+        args.reserve(argc);
+        for (int i = 0; i < argc; ++i)
         {
-            block.exec(this->functions);
+            std::string arg = argv[i];
+            args.emplace_back(arg.begin(), arg.end());
         }
-        catch (const std::runtime_error& error)
-        {
-            this->controller.showError(error.what() + '\n');
-        }
-        catch (const std::wstring error)
-        {
-            this->controller.showError(error + L'\n');
-        }
+        block.prepare(this->functions);
+        block.exec(args);
+    }
+    catch (const std::runtime_error& error)
+    {
+        this->controller.showError(std::string(error.what()) + '\n');
+    }
+    catch (const std::wstring error)
+    {
+        this->controller.showError(error + L'\n');
     }
 }

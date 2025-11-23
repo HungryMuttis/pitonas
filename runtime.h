@@ -14,11 +14,9 @@ public:
 	void setInput(std::wistream& input);
 	void setController(ConsoleController& controller);
 	void addFuntions(Storage& functions);
-	void usingConsole(bool setting = true);
-	void run();
+	void run(int argv, char* argc[]);
 private:
 	std::wistream* input = nullptr;
 	Storage functions;
 	ConsoleController controller;
-	bool console = false;
 };

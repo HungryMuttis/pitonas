@@ -1,5 +1,6 @@
 #pragma once
 #include <any>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <typeindex>
@@ -8,20 +9,11 @@
 class Storage
 {
 public:
-    template<typename Ret>
-    void add(std::wstring name, Ret(*func)(std::vector<std::wstring>))
-    {
-        this->functions[name] = func;
-    }
-    template<typename Ret = void> Ret call(std::wstring name, std::vector<std::wstring> args)
-    {
-        std::map<std::wstring, std::any>::iterator iterator = this->functions.find(name);
-        if (iterator == this->functions.end()) throw std::wstring(L"No function with name '" + name + L"' was found");
-
-        return std::any_cast<Ret(*)(std::vector<std::wstring>)>(iterator->second)(args);
-    }
+    void add(std::wstring name, std::function<std::wstring(std::vector<std::wstring>)> func);
+    std::function<std::wstring(std::vector<std::wstring>)> resolve(const std::wstring name);
+    std::wstring call(std::wstring name, std::vector<std::wstring> args);
     void merge(const Storage& other);
     friend Storage operator+(Storage copy, const Storage& other);
 private:
-    std::map<std::wstring, std::any> functions;
+    std::map<std::wstring, std::function<std::wstring(std::vector<std::wstring>)>> functions;
 };
