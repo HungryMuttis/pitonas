@@ -27,6 +27,59 @@ static void registerBuiltins(Storage& builtins)
         std::getline(std::wcin, line);
         return line;
     });
+
+    // arithmetic
+    builtins.add(L"sudėk", [](std::vector<std::wstring> args) {
+        if (args.size() < 2) throw std::wstring(L"This function takes in atleast 2 arguments");
+        long double number = 0;
+        try
+        {
+            for (std::wstring string : args)
+                number += stold(string);
+        }
+        catch (...)
+        {
+            throw std::wstring(L"Could not convert variables to numbers");
+        }
+        return formatNumber(number);
+    });
+    builtins.add(L"atimk", [](std::vector<std::wstring> args) {
+        if (args.size() != 2) throw std::wstring(L"This function takes in 2 arguments");
+        try
+        {
+            return formatNumber(stold(args[0]) - stold(args[1]));
+        }
+        catch (...)
+        {
+            throw std::wstring(L"Could not convert variables to numbers");
+        }
+    });
+    builtins.add(L"padaugink", [](std::vector<std::wstring> args) {
+        if (args.size() < 2) throw std::wstring(L"This function takes in atleats 2 arguments");
+        long double number = 0;
+        try
+        {
+            number = stold(args[0]);
+            for (int i = 1; i < args.size(); i++)
+                number *= stold(args[i]);
+        }
+        catch (...)
+        {
+            throw std::wstring(L"Could not convert variables to numbers");
+        }
+        return formatNumber(number);
+    });
+    builtins.add(L"padalink", [](std::vector<std::wstring> args) {
+        if (args.size() != 2) throw std::wstring(L"This function takes in 2 arguments");
+        try
+        {
+            return formatNumber(stold(args[0]) / stold(args[1]));
+        }
+        catch (...)
+        {
+            throw std::wstring(L"Could not convert variables to numbers");
+        }
+    });
 }
 
 int main(int argc, char* argv[])
