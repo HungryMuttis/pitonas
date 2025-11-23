@@ -13,6 +13,7 @@ public:
 	void showError(std::string message) const;
 	void showError(std::wstring message) const;
 	void showFatal(std::string message) const;
+	void showFatal(std::wstring message) const;
 	void resetColor() const;
 private:
 	HANDLE hConsole;

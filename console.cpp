@@ -18,8 +18,12 @@ void ConsoleController::showError(std::wstring message) const
 }
 void ConsoleController::showFatal(std::string message) const
 {
+	this->showFatal(ToWString(message));
+}
+void ConsoleController::showFatal(std::wstring message) const
+{
 	SetConsoleTextAttribute(this->hConsole, FOREGROUND_RED);
-	std::wcout << L"[Fatal Error]: " << ToWString(message);
+	std::wcout << L"[Fatal Error]: " << message;
 	this->resetColor();
 }
 
