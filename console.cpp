@@ -15,18 +15,20 @@ void ConsoleController::showError(std::wstring message) const
 	SetConsoleTextAttribute(this->hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
 	std::wcout << L"[Error]: " << message;
 	this->resetColor();
+	std::wcout << std::endl;
+	system("pause");
 }
 void ConsoleController::showFatal(std::string message) const
 {
 	this->showFatal(ToWString(message));
-	std::wcout << std::endl;
-	system("pause");
 }
 void ConsoleController::showFatal(std::wstring message) const
 {
 	SetConsoleTextAttribute(this->hConsole, FOREGROUND_RED);
 	std::wcout << L"[Fatal Error]: " << message;
 	this->resetColor();
+	std::wcout << std::endl;
+	system("pause");
 }
 
 void ConsoleController::resetColor() const
