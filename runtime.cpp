@@ -12,7 +12,6 @@ void PitonRuntime::addFuntions(Storage& functions)
 {
 	this->functions.merge(functions);
 }
-
 void PitonRuntime::usingConsole(bool setting)
 {
 	this->console = setting;
