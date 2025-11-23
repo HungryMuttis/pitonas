@@ -11,7 +11,7 @@ struct Token
 	bool literal = false;
 	std::wstring token;
 };
-typedef std::function<void(std::map<std::wstring, std::wstring>&, Storage&, Storage&, int&)> Line;
+typedef std::function<void(std::map<std::wstring, std::wstring>&, Storage&, Storage&, std::wstring&, int&)> Line;
 
 class Block
 {
@@ -30,6 +30,7 @@ private:
 	std::vector<std::wstring> parameters;
 	std::map<std::wstring, std::wstring> variables;
 	std::vector<std::shared_ptr<Block>> children;
+	std::wstring returnVal;
 	bool ready = false;
 	Storage locals, globals;
 };

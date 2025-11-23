@@ -1,4 +1,4 @@
-#include "block.h"
+﻿#include "block.h"
 
 void Block::define(std::wstring name)
 {
@@ -23,9 +23,12 @@ std::wstring Block::exec(const std::vector<std::wstring>& args)
 		this->variables[this->parameters[i]] = args[i];
 
 	for (int execLine = 0; execLine < this->lines.size(); execLine++)
-		this->lines[execLine](this->variables, this->locals, this->globals, execLine);
+	{
+		if (execLine == -2) break;
+		this->lines[execLine](this->variables, this->locals, this->globals, this->returnVal, execLine);
+	}
 
-	return std::wstring();
+	return this->returnVal;
 }
 std::wstring Block::operator()(const std::vector<std::wstring>& args)
 {
@@ -53,6 +56,7 @@ void Block::build(const std::function<wchar_t()>& getChar)
 			if (!this->tokens.empty()) throw std::wstring(L"Block ended prematurely");
 			return;
 		case L'\t':
+		case L'\r':
 		case L'\n':
 		case L' ':
 			if (string) this->currToken << c;
@@ -120,7 +124,7 @@ void Block::build(const std::function<wchar_t()>& getChar)
 					if (this->tokens[1].literal) throw std::wstring(L"Jump line cannot be literal. It may be a number or a variable");
 					argname = this->tokens[1].token;
 				}
-				newLine = [argname](std::map<std::wstring, std::wstring>& variables, Storage&, Storage&, int& execLine) { if (argname == L"") execLine = -1; else try { execLine = stoi(argname); } catch (...) { execLine = stoi(variables[argname]); } };
+				newLine = [argname](std::map<std::wstring, std::wstring>& variables, Storage&, Storage&, std::wstring&, int& execLine) { if (argname == L"") execLine = -1; else try { execLine = stoi(argname); } catch (...) { execLine = stoi(variables[argname]); } };
 			}
 			else if (opcode == L"kintamasis")
 			{
@@ -144,14 +148,29 @@ void Block::build(const std::function<wchar_t()>& getChar)
 				}
 				std::vector<Token> args;
 				if (this->tokens.size() > 3) args.assign(this->tokens.begin() + 3, this->tokens.end());
-				newLine = [variable, initialValue, args](std::map<std::wstring, std::wstring>& variables, Storage& locals, Storage& globals, int&) { std::vector<std::wstring> resolvedArgs; for (Token token : args) resolvedArgs.push_back(token.literal ? token.token : variables[token.token]); variables[variable] = initialValue(locals, globals, resolvedArgs); };
+				newLine = [variable, initialValue, args](std::map<std::wstring, std::wstring>& variables, Storage& locals, Storage& globals, std::wstring&, int&) { std::vector<std::wstring> resolvedArgs; for (Token token : args) resolvedArgs.push_back(token.literal ? token.token : variables[token.token]); variables[variable] = initialValue(locals, globals, resolvedArgs); };
+			}
+			else if (opcode == L"grąžink")
+			{
+				if (this->tokens.size() < 2) throw std::wstring(L"Return value must be specified");
+				std::function<std::wstring(Storage&, Storage&, std::vector<std::wstring>&)> val;
+				std::wstring token = this->tokens[1].token;
+				if (this->tokens[1].literal)
+				{
+					if (this->tokens.size() > 2) throw std::wstring(L"Only one return value must be specified");
+					val = [token](Storage&, Storage&, std::vector<std::wstring>&) { return token; };
+				}
+				else val = this->functionExecute(token);
+				std::vector<Token> args;
+				if (this->tokens.size() > 1) args.assign(this->tokens.begin() + 1, this->tokens.end());
+				newLine = [val, args](std::map<std::wstring, std::wstring>& variables, Storage& locals, Storage& globals, std::wstring& returnVal, int& execLine) { std::vector<std::wstring> resolvedArgs; for (Token token : args) resolvedArgs.push_back(token.literal ? token.token : variables[token.token]); returnVal = val(locals, globals, resolvedArgs); execLine = -2; };
 			}
 			else
 			{
 				std::function<std::wstring(Storage&, Storage&, std::vector<std::wstring>&)> func = this->functionExecute(opcode);
 				std::vector<Token> args;
 				if (this->tokens.size() > 1) args.assign(this->tokens.begin() + 1, this->tokens.end());
-				newLine = [func, args](std::map<std::wstring, std::wstring>& variables, Storage& locals, Storage& globals, int&) { std::vector<std::wstring> resolvedArgs; for (Token token : args) resolvedArgs.push_back(token.literal ? token.token : variables[token.token]); func(locals, globals, resolvedArgs); };
+				newLine = [func, args](std::map<std::wstring, std::wstring>& variables, Storage& locals, Storage& globals, std::wstring&, int&) { std::vector<std::wstring> resolvedArgs; for (Token token : args) resolvedArgs.push_back(token.literal ? token.token : variables[token.token]); func(locals, globals, resolvedArgs); };
 			}
 
 			this->lines.push_back(newLine);

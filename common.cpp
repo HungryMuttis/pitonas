@@ -1,5 +1,35 @@
 #include "common.h"
 
+std::wstring ReadFileToWString(char* filePath)
+{
+    std::filesystem::path path(filePath);
+
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) throw std::runtime_error("Could not open file");
+
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::string buffer(size, '\0');
+    if (!file.read(&buffer[0], size)) throw std::runtime_error("Could not read file");
+
+    if (buffer.empty()) return L"";
+
+    if (buffer.size() >= 3 &&
+        static_cast<unsigned char>(buffer[0]) == 0xEF &&
+        static_cast<unsigned char>(buffer[1]) == 0xBB &&
+        static_cast<unsigned char>(buffer[2]) == 0xBF)
+    {
+        buffer.erase(0, 3);
+    }
+
+    int wchars_num = MultiByteToWideChar(CP_UTF8, 0, buffer.c_str(), -1, NULL, 0);
+    std::wstring wstr;
+    wstr.resize(wchars_num - 1);
+    MultiByteToWideChar(CP_UTF8, 0, buffer.c_str(), -1, &wstr[0], wchars_num);
+
+    return wstr;
+}
 std::wstring ToWString(const std::string& utf8Str)
 {
     if (utf8Str.empty()) return std::wstring();

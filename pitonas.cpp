@@ -1,4 +1,4 @@
-#include "common.h"
+﻿#include "common.h"
 #include "console.h"
 #include "runtime.h"
 
@@ -10,6 +10,22 @@ static void registerBuiltins(Storage& builtins)
             std::wcout << string << L' ';
         std::wcout << std::endl;
         return L"";
+    });
+
+    // waiting
+    builtins.add(L"palauk", [](std::vector<std::wstring> args) {
+        if (args.size() > 0) throw std::wstring(L"This function does not take in any arguments");
+        system("pause");
+        return L"";
+    });
+
+    // input
+    builtins.add(L"įvesk", [](std::vector<std::wstring> args) {
+        for (std::wstring string : args)
+            std::wcout << string << L' ';
+        std::wstring line;
+        std::getline(std::wcin, line);
+        return line;
     });
 }
 
@@ -31,8 +47,8 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::wifstream file(argv[1]);
-        if (!file.is_open()) throw std::wstring(L"Failed to open file '" + ToWString(argv[1]) + L'\'');
+        std::wstring content = ReadFileToWString(argv[1]);
+        std::wstringstream file(content);
         runtime.setInput(file);
         runtime.run(argc, argv);
     }
