@@ -1,5 +1,15 @@
 #include "common.h"
 
+std::wstring formatNumber(long double number)
+{
+    std::wstring str = std::to_wstring(number);
+    if (str.find(L'.') != std::wstring::npos)
+    {
+        str.erase(str.find_last_not_of(L'0') + 1, std::string::npos);
+        if (str.back() == L'.') str.pop_back();
+    }
+    return str;
+}
 std::wstring ReadFileToWString(char* filePath)
 {
     std::filesystem::path path(filePath);
