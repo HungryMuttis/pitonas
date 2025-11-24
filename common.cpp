@@ -1,5 +1,9 @@
 #include "common.h"
 
+///////////////////////////////
+// CODE MOSTLY WRITTEN BY AI //
+///////////////////////////////
+
 std::wstring formatNumber(long double number)
 {
     std::wstring str = std::to_wstring(number);
