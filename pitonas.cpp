@@ -32,54 +32,96 @@ static void registerBuiltins(Storage& builtins)
     builtins.add(L"sudėk", [](std::vector<std::wstring> args) {
         if (args.size() < 2) throw std::wstring(L"This function takes in atleast 2 arguments");
         long double number = 0;
-        try
-        {
-            for (std::wstring string : args)
-                number += stold(string);
-        }
-        catch (...)
-        {
-            throw std::wstring(L"Could not convert variables to numbers");
-        }
+        for (std::wstring string : args)
+            number += getNumber(string);
         return formatNumber(number);
     });
     builtins.add(L"atimk", [](std::vector<std::wstring> args) {
-        if (args.size() != 2) throw std::wstring(L"This function takes in 2 arguments");
-        try
-        {
-            return formatNumber(stold(args[0]) - stold(args[1]));
-        }
-        catch (...)
-        {
-            throw std::wstring(L"Could not convert variables to numbers");
-        }
+        if (args.size() < 2) throw std::wstring(L"This function takes in atleast 2 arguments");
+        long double number = getNumber(args[0]);
+        for (int i = 1; i < args.size(); i++)
+            number -= getNumber(args[i]);
+        return formatNumber(number);
     });
     builtins.add(L"padaugink", [](std::vector<std::wstring> args) {
         if (args.size() < 2) throw std::wstring(L"This function takes in atleats 2 arguments");
-        long double number = 0;
-        try
-        {
-            number = stold(args[0]);
-            for (int i = 1; i < args.size(); i++)
-                number *= stold(args[i]);
-        }
-        catch (...)
-        {
-            throw std::wstring(L"Could not convert variables to numbers");
-        }
+        long double number = getNumber(args[0]);
+        for (int i = 1; i < args.size(); i++)
+            number *= getNumber(args[i]);
         return formatNumber(number);
     });
     builtins.add(L"padalink", [](std::vector<std::wstring> args) {
+        if (args.size() < 2) throw std::wstring(L"This function takes in atleast 2 arguments");
+        long double number = getNumber(args[0]);
+        for (int i = 1; i < args.size(); i++)
+            number /= getNumber(args[i]);
+        return formatNumber(number);
+    });
+
+    // boolean
+    builtins.add(L"daugiau", [](std::vector<std::wstring> args) {
         if (args.size() != 2) throw std::wstring(L"This function takes in 2 arguments");
+        return getNumber(args[0]) > getNumber(args[1]) ? L"taip" : L"ne";
+    });
+    builtins.add(L"mažiau", [](std::vector<std::wstring> args) {
+        if (args.size() != 2) throw std::wstring(L"This function takes in 2 arguments");
+        return getNumber(args[0]) < getNumber(args[1]) ? L"taip" : L"ne";
+    });
+    builtins.add(L"lygu", [](std::vector<std::wstring> args) {
+        if (args.size() != 2) throw std::wstring(L"This function takes in 2 arguments");
+        return args[0] == args[1] ? L"taip" : L"ne";
+    });
+    builtins.add(L"nelygu", [](std::vector<std::wstring> args) {
+        if (args.size() != 2) throw std::wstring(L"This function takes in 2 arguments");
+        return args[0] != args[1] ? L"taip" : L"ne";
+    });
+
+    builtins.add(L"ir", [](std::vector<std::wstring> args) {
+        if (args.size() < 2) throw std::wstring(L"This function takes in at least 2 arguments");
+        for (std::wstring string : args)
+            if (!getBool(string)) return L"ne";
+        return L"taip";
+    });
+    builtins.add(L"arba", [](std::vector<std::wstring> args) {
+        if (args.size() < 2) throw std::wstring(L"This function takes in at least 2 arguments");
+        for (std::wstring string : args)
+            if (getBool(string)) return L"taip";
+        return L"ne";
+    });
+    builtins.add(L"atvirkščiai", [](std::vector<std::wstring> args) {
+        if (args.size() != 1) throw std::wstring(L"This function takes in 1 argument");
+        return getBool(args[0]) ? L"ne" : L"taip";
+    });
+
+    builtins.add(L"yra_skaičius", [](std::vector<std::wstring> args) {
+        if (args.size() != 1) throw std::wstring(L"This function takes in 1");
         try
         {
-            return formatNumber(stold(args[0]) / stold(args[1]));
+            getNumber(args[0]);
+            return L"taip";
         }
-        catch (...)
+        catch (const std::wstring&)
         {
-            throw std::wstring(L"Could not convert variables to numbers");
+            return L"ne";
         }
     });
+    builtins.add(L"yra_loginis", [](std::vector<std::wstring> args) {
+        if (args.size() != 1) throw std::wstring(L"This function takes in 1 argument");
+        try
+        {
+            getBool(args[0]);
+            return L"taip";
+        }
+        catch (const std::wstring&)
+        {
+            return L"ne";
+        }
+    });
+
+    // system interaction
+    //builtins.add(L"laikas", [](std::vector<std::wstring> args) {
+
+    //});
 }
 
 int main(int argc, char* argv[])

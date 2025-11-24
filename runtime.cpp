@@ -23,12 +23,16 @@ void PitonRuntime::run(int argc, char* argv[])
     {
         for (int i = 0; i < argc; i++)
             block.define(L"argv" + std::to_wstring(i));
-        block.build([this]() -> wchar_t {
+        int line = 1;
+        block.build([this, &line]() -> wchar_t {
             wchar_t c;
             if (this->input->get(c))
+            {
+                if (c == L'\n') line++;
                 return c;
+            }
             return WEOF;
-        });
+        }, [&line]() -> int { return line; });
 
         std::vector<std::wstring> args;
         args.reserve(argc);
@@ -38,7 +42,7 @@ void PitonRuntime::run(int argc, char* argv[])
             args.emplace_back(arg.begin(), arg.end());
         }
         block.prepare(this->functions);
-        block.exec(args);
+        block.exec(args, nullptr);
     }
     catch (const std::runtime_error& error)
     {
@@ -46,6 +50,6 @@ void PitonRuntime::run(int argc, char* argv[])
     }
     catch (const std::wstring error)
     {
-        this->controller.showError(error + L'\n');
+        this->controller.showError(L"[Runtime]: " + error + L'\n');
     }
 }
