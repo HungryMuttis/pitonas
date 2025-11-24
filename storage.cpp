@@ -1,6 +1,6 @@
 #include "storage.h"
 
-void Storage::add(std::wstring name, std::function<std::wstring(std::vector<std::wstring>)> func)
+void Storage::add(std::wstring name, Function func)
 {
 	this->functions[name] = func;
 }
