@@ -15,9 +15,11 @@ std::wstring Storage::call(std::wstring name, std::vector<std::wstring> args)
 {
     return this->resolve(name)(args);
 }
-void Storage::merge(const Storage& other)
+void Storage::merge(const Storage& other, const std::wstring& prefix)
 {
-	this->functions.insert(other.functions.begin(), other.functions.end());
+	if (prefix.empty()) this->functions.insert(other.functions.begin(), other.functions.end());
+	else for (const auto& [name, func] : other.functions)
+		this->functions[prefix + name] = func;
 }
 Storage operator+(Storage copy, const Storage& other)
 {
