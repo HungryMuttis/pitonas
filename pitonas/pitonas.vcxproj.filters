@@ -27,17 +27,14 @@
     <ClCompile Include="block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common.cpp">
+    <ClCompile Include="storage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="storage.cpp">
+    <ClCompile Include="common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="storage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -50,5 +47,13 @@
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="storage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="code.pi">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

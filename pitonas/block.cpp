@@ -45,8 +45,35 @@ std::wstring Block::exec(const std::vector<std::wstring>& args, Scope* parentSco
 		activeScope = newScope.get();
 	}
 
-	for (int i = 0; i < this->parameters.size(); i++)
+	int i;
+	for (i = 0; i < this->parameters.size(); i++)
 		activeScope->set(this->parameters[i], args[i]);
+
+	std::wstringstream argsList;
+	argsList << L'[';
+	for (; i < args.size(); i++)
+	{
+		if (i > 0) argsList << L", ";
+
+		argsList << L"\"";
+		std::wstring raw = args[i];
+
+		size_t pos = 0;
+		while ((pos = raw.find(L'\\', pos)) != std::wstring::npos) {
+			raw.replace(pos, 1, L"\\\\");
+			pos += 2;
+		}
+		pos = 0;
+		while ((pos = raw.find(L'"', pos)) != std::wstring::npos) {
+			raw.replace(pos, 1, L"\\\"");
+			pos += 2;
+		}
+
+		argsList << raw;
+		argsList << L"\"";
+	}
+	argsList << L']';
+	activeScope->set(L"argumentai", argsList.str());
 
 	for (const FunctionEntry& function : this->functions)
 	{
@@ -68,7 +95,7 @@ std::wstring Block::exec(const std::vector<std::wstring>& args, Scope* parentSco
 	return returnVal;
 }
 
-void Block::build(const std::function<wchar_t()>& getChar, const std::function<int()>& getLine)
+void Block::build(const std::function<wchar_t()>& getChar, const std::function<int()>& getLine, std::vector<std::pair<std::wstring, std::wstring>>* libraries)
 {
 	bool string = false, escape = false, comment = false, lastif = false;
 	Token lastiftoken;
@@ -92,14 +119,16 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 			switch (c)
 			{
 			case L'}':
+				if (escape) throw std::wstring(L"Nothing to escape");
 				if (!tokens.empty()) throw std::wstring(L"Block ended prematurely");
 				return;
 			case L'\t':
 			case L'\r':
 			case L'\n':
 			case L' ':
+				if (escape) throw std::wstring(L"Nothing to escape");
 				if (string) currToken << c;
-				else this->addToken(currToken, tokens);
+				else { this->addToken(currToken, tokens); comment = false; };
 				break;
 			case L'"':
 				if (escape)
@@ -123,6 +152,7 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 				break;
 			case L'{':
 			{
+				if (escape) throw std::wstring(L"Nothing to escape");
 				if (string)
 				{
 					currToken << c;
@@ -219,6 +249,7 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 			}
 			case L';':
 			{
+				if (escape) throw std::wstring(L"Nothing to escape");
 				if (string)
 				{
 					currToken << c;
@@ -243,7 +274,7 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 					}
 					newLine = [argname](Scope& scope, Storage&, std::wstring&, int& execLine) {
 						if (argname == L"") execLine = -1;
-						else try { execLine = getNumber(argname); } catch (...) { execLine = getNumber(scope.getv(argname)); }
+						else try { execLine = static_cast<int>(getNumber(argname)); } catch (...) { execLine = static_cast<int>(getNumber(scope.getv(argname))); }
 					};
 				}
 				else if (opcode == L"kintamasis")
@@ -285,6 +316,23 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 						newLine = [](Scope&, Storage&, std::wstring&, int& execLine) { execLine = -2; };
 					}
 				}
+				else if (opcode == L"importuok")
+				{
+					if (libraries == nullptr) throw std::wstring(L"Libraries can only be defined in the main block");
+
+					if (tokens.size() < 2) throw std::wstring(L"No library to import was specified");
+					if (!tokens[1].literal) throw std::wstring(L"Library name must be literal");
+					if (tokens.size() > 3) throw std::wstring(L"Too many arguments specified for import");
+
+					std::wstring displayName = tokens[1].token;
+					if (tokens.size() == 3)
+					{
+						if (!tokens[2].literal) throw std::wstring(L"Library display name must be literal");
+						displayName = tokens[2].token;
+					}
+
+					libraries->push_back({ tokens[1].token, displayName });
+				}
 				else
 				{
 					FunctionExecute func = this->functionExecute(opcode);
@@ -293,9 +341,12 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 					newLine = [func, args](Scope& scope, Storage& globals, std::wstring&, int&) { func(scope, globals, args); };
 				}
 
-				int currLine = getLine();
-				newLine = [newLine, currLine](Scope& scope, Storage& globals, std::wstring& returnVal, int& execLine) { try { return newLine(scope, globals, returnVal, execLine); } catch (std::wstring& error) { throw std::wstring(L"Line " + std::to_wstring(currLine) + L": " + error); } };
-				this->lines.push_back(newLine);
+				if (newLine)
+				{
+					int currLine = getLine();
+					newLine = [newLine, currLine](Scope& scope, Storage& globals, std::wstring& returnVal, int& execLine) { try { return newLine(scope, globals, returnVal, execLine); } catch (std::wstring& error) { throw std::wstring(L"Line " + std::to_wstring(currLine) + L": " + error); } catch (...) { throw std::wstring(L"Line " + std::to_wstring(currLine) + L": Internal Error"); } };
+					this->lines.push_back(newLine);
+				}
 				tokens.clear();
 
 				break;
@@ -317,6 +368,7 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 				else currToken << c;
 				break;
 			default:
+				if (escape) throw std::wstring(L"Nothing to escape");
 				currToken << c;
 				break;
 			}

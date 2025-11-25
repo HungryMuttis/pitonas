@@ -6,7 +6,5 @@
 #include <Windows.h>
 
 long double getNumber(std::wstring string);
-bool getBool(std::wstring string);
-std::wstring formatNumber(long double number);
 std::wstring ReadFileToWString(char* filePath);
-std::wstring ToWString(const std::string& utf8Str);
+std::wstring ToWString(const std::string& str);

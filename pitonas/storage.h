@@ -1,4 +1,5 @@
 #pragma once
+
 #include <any>
 #include <functional>
 #include <iostream>
@@ -6,7 +7,10 @@
 #include <typeindex>
 #include <vector>
 
-typedef std::function<std::wstring(std::vector<std::wstring>)> Function;
+using Function = std::function<std::wstring(std::vector<std::wstring>)>;
+
+#pragma warning(push)
+#pragma warning(disable: 4251) 
 
 class Storage
 {
@@ -19,3 +23,5 @@ public:
 private:
     std::map<std::wstring, Function> functions;
 };
+
+#pragma warning(pop)

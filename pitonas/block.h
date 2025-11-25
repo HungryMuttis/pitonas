@@ -54,7 +54,7 @@ public:
 	void setType(BlockType type);
 	void prepare(Storage& globals);
 	std::wstring exec(const std::vector<std::wstring>& args, Scope* parentScope);
-	void build(const std::function<wchar_t()>& getChar, const std::function<int()>& getLine);
+	void build(const std::function<wchar_t()>& getChar, const std::function<int()>& getLine, std::vector<std::pair<std::wstring, std::wstring>>* libraries = nullptr);
 private:
 	void addToken(std::wstringstream& currToken, std::vector<Token>& tokens, bool literal = false);
 	FunctionExecute functionExecute(std::wstring& name) const noexcept;

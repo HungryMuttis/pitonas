@@ -11,27 +11,11 @@ long double getNumber(std::wstring string)
         throw std::wstring(L"Could not convert '" + string + L"' to a number");
     }
 }
-bool getBool(std::wstring string)
-{
-    if (string == L"taip") return true;
-    else if (string == L"ne") return false;
-    else throw std::wstring(L"This function takes in a boolean");
-}
 
 ///////////////////////////////
 // CODE MOSTLY WRITTEN BY AI //
 ///////////////////////////////
 
-std::wstring formatNumber(long double number)
-{
-    std::wstring str = std::to_wstring(number);
-    if (str.find(L'.') != std::wstring::npos)
-    {
-        str.erase(str.find_last_not_of(L'0') + 1, std::string::npos);
-        if (str.back() == L'.') str.pop_back();
-    }
-    return str;
-}
 std::wstring ReadFileToWString(char* filePath)
 {
     std::filesystem::path path(filePath);
@@ -62,12 +46,12 @@ std::wstring ReadFileToWString(char* filePath)
 
     return wstr;
 }
-std::wstring ToWString(const std::string& utf8Str)
+std::wstring ToWString(const std::string& str)
 {
-    if (utf8Str.empty()) return std::wstring();
+    if (str.empty()) return std::wstring();
 
-    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &utf8Str[0], (int)utf8Str.size(), NULL, 0);
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
     std::wstring wstrTo(size_needed, 0);
-    MultiByteToWideChar(CP_UTF8, 0, &utf8Str[0], (int)utf8Str.size(), &wstrTo[0], size_needed);
+    MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
     return wstrTo;
 }

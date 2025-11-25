@@ -1,0 +1,162 @@
+﻿# --------------------------------------------------------- #
+# 1. IMPORTAVIMAS #
+# --------------------------------------------------------- #
+importuok "standartinė_biblioteka/konsolė" "io";
+importuok "standartinė_biblioteka/aritmetika" "math";
+importuok "standartinė_biblioteka/logika";
+importuok "standartinė_biblioteka/tipai";
+importuok "standartinė_biblioteka/sistema";
+
+io.atspausdink "=== PRADEDAMAS TESTAVIMAS ===";
+
+# --------------------------------------------------------- #
+# 2. ARITMETIKA #
+# --------------------------------------------------------- #
+io.atspausdink "[1/6] Aritmetikos testas...";
+kintamasis a "10";
+kintamasis b "2";
+
+# Test: sudėk (10 + 2 = 12) #
+kintamasis sum math.sudėk a b;
+kintamasis check_sum logika.nelygu sum "12";
+jeigu check_sum { 
+    io.atspausdink "KLAIDA: Sudėtis nepavyko. Gauta: " sum; 
+};
+
+# Test: atimk (10 - 2 = 8) #
+kintamasis sub math.atimk a b;
+kintamasis check_sub logika.nelygu sub "8";
+jeigu check_sub { 
+    io.atspausdink "KLAIDA: Atimtis nepavyko. Gauta: " sub; 
+};
+
+# Test: padaugink (10 * 2 = 20) #
+kintamasis mul math.padaugink a b;
+kintamasis check_mul logika.nelygu mul "20";
+jeigu check_mul { 
+    io.atspausdink "KLAIDA: Daugyba nepavyko. Gauta: " mul; 
+};
+
+# Test: padalink (10 / 2 = 5) #
+kintamasis div math.padalink a b;
+kintamasis check_div logika.nelygu div "5";
+jeigu check_div { 
+    io.atspausdink "KLAIDA: Dalyba nepavyko. Gauta: " div; 
+};
+
+io.atspausdink "  Aritmetika veikia.";
+
+# --------------------------------------------------------- #
+# 3. LOGIKA IR TIPAI #
+# --------------------------------------------------------- #
+io.atspausdink "[2/6] Logikos testas...";
+
+# Test: daugiau #
+kintamasis bad_logic logika.daugiau "5" "10";
+jeigu bad_logic { 
+    io.atspausdink "KLAIDA: 5 neturėtų būti daugiau už 10"; 
+};
+
+# Test: lygu #
+kintamasis bad_eq logika.lygu "a" "b";
+jeigu bad_eq { 
+    io.atspausdink "KLAIDA: 'a' neturėtų būti lygu 'b'"; 
+};
+
+# Test: ir / atvirkščiai #
+kintamasis tiesa "taip";
+kintamasis melas "ne";
+
+kintamasis check_and logika.ir tiesa melas;
+jeigu check_and { 
+    io.atspausdink "KLAIDA: 'taip IR ne' turėtų būti 'ne'"; 
+};
+
+kintamasis not_true logika.atvirkščiai tiesa;
+jeigu not_true {
+    io.atspausdink "KLAIDA: 'atvirkščiai taip' turėtų būti 'ne'";
+};
+
+# Test: Tipai #
+kintamasis is_num tipai.yra_skaičius "123.45";
+kintamasis check_num logika.lygu is_num "ne";
+jeigu check_num { 
+    io.atspausdink "KLAIDA: Atpažinimas skaičiaus nepavyko"; 
+};
+
+io.atspausdink "  Logika veikia.";
+
+# --------------------------------------------------------- #
+# 4. KILPOS (CORRECTED) #
+# --------------------------------------------------------- #
+io.atspausdink "[3/6] Kilpų testas (skaičiuojama iki 3)...";
+kintamasis i "0";
+{
+    kintamasis i math.sudėk i "1";
+    io.atspausdink "  Iteracija: " i;
+    
+    # Check exit condition: if i >= 3, break the loop #
+    kintamasis break_cond logika.daugiau i "2"; 
+    jeigu break_cond { 
+        grąžink; 
+    }
+    
+    # Restart the block (loop) #
+    kilpa;
+}
+io.atspausdink "  Kilpos baigtos.";
+
+# --------------------------------------------------------- #
+# 5. REKURSIJA IR IF-ELSE #
+# --------------------------------------------------------- #
+io.atspausdink "[4/6] Rekursijos testas (Faktorialas 5!)...";
+
+funkcija globali faktorialas n {
+    # Base case check #
+    kintamasis is_base logika.mažiau n "2";
+    jeigu is_base { grąžink "1"; };
+    
+    # Recursive step #
+    kintamasis prev math.atimk n "1";
+    kintamasis temp faktorialas prev;
+    kintamasis res math.padaugink n temp;
+    grąžink res;
+};
+
+kintamasis fact_res faktorialas "5";
+kintamasis fact_check logika.nelygu fact_res "120";
+
+# IMPORTANT: No semicolon after this block because 'priešingai' follows #
+jeigu fact_check { 
+    io.atspausdink "KLAIDA: Faktorialas suskaičiuotas neteisingai: " fact_res; 
+} 
+priešingai {
+    io.atspausdink "  5! = " fact_res;
+};
+
+# --------------------------------------------------------- #
+# 6. ARGUMENTŲ SĄRAŠAS #
+# --------------------------------------------------------- #
+io.atspausdink "[5/6] Argumentų masyvo testas...";
+
+funkcija vietinė spausdintuvas a b {
+    # 'argumentai' is an auto-generated JSON-like string #
+    io.atspausdink "  Gauti argumentai: " argumentai;
+};
+
+# Pass arguments with spaces and quotes to test parsing #
+spausdintuvas "pirmas" "antras \"su kabutėm\"";
+
+# --------------------------------------------------------- #
+# 7. SISTEMA #
+# --------------------------------------------------------- #
+io.atspausdink "[6/6] Sistemos testas...";
+kintamasis dbrl sistema.laikas;
+io.atspausdink "  Dabartinis laikas: " dbrl;
+io.atspausdink "  Vykdoma komanda 'dir' (arba 'ls')...";
+
+# Note: Using 'komanada' as defined in the library #
+sistema.komanada "dir"; 
+
+io.atspausdink "=== TESTAVIMAS BAIGTAS ===";
+io.palauk;
