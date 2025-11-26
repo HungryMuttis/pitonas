@@ -327,10 +327,9 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 					std::wstring displayName = tokens[1].token;
 					if (tokens.size() == 3)
 					{
-						if (tokens[2].literal) throw std::wstring(L"Library display name can not be literal");
+						if (tokens[2].literal && !tokens[2].token.empty()) throw std::wstring(L"Library display name can not be literal");
 						displayName = tokens[2].token;
 					}
-					else if (displayName.find(L' ') != std::wstring::npos) throw std::wstring(L"Library name cannot contain spaces so it must be renamed");
 
 					libraries->push_back({ tokens[1].token, displayName });
 				}
