@@ -76,6 +76,7 @@ void PitonRuntime::run(int argc, char* argv[])
             Storage tmp;
             entry(&tmp, RuntimeRegisterHook, moduleName.c_str());
             std::wstring prefix = lib.second == lib.first ? moduleName : lib.second;
+            if (prefix.find(L' ') != std::wstring::npos) throw std::wstring(L"Library name cannot contain spaces so it must be renamed");
             if (!lib.second.empty()) prefix += L'.';
             functions.merge(tmp, prefix);
         }
