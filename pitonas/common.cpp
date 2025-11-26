@@ -22,7 +22,7 @@ bool getBool(std::wstring string)
 // CODE MOSTLY WRITTEN BY AI //
 ///////////////////////////////
 
-std::wstring ReadFileToWString(char* filePath)
+std::wstring ReadFileToWString(const char* filePath)
 {
     std::filesystem::path path(filePath);
 
