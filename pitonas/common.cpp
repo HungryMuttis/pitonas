@@ -11,6 +11,12 @@ long double getNumber(std::wstring string)
         throw std::wstring(L"Could not convert '" + string + L"' to a number");
     }
 }
+bool getBool(std::wstring string)
+{
+    if (string == L"taip") return true;
+    else if (string == L"ne") return false;
+    else throw std::wstring(L"This function takes in a boolean");
+}
 
 ///////////////////////////////
 // CODE MOSTLY WRITTEN BY AI //
