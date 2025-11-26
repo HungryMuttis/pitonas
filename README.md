@@ -49,7 +49,7 @@ First of all, there are only a couple of syntax symbols in this language. Heres 
 - **Block**: A block is some part of the code. Every program has at least 1 block, it is the whole program, but the main block may have children blocks. Blocks are started by writing `{` and closed by `}`. It is very easy to know a block start and an end, you just look for `{` and `}` symbols and thats your block.
 
 ### Standard library
-You can see all of the available functions here (wait, let me finish the file first)
+You can see all of the available functions [here](standartinė_biblioteka.md)
 
 ### Variables
 Defining variables is really simple. A variable definition takes in 2, 3 or any amount of tokens, depending if you are setting the value or not.  
