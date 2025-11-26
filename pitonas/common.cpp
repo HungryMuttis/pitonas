@@ -27,7 +27,7 @@ std::wstring ReadFileToWString(const char* filePath)
     std::filesystem::path path(filePath);
 
     std::ifstream file(path, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) throw std::runtime_error("Could not open file");
+    if (!file.is_open()) throw std::wstring(L"Could not open file");
 
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
