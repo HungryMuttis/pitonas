@@ -241,6 +241,20 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 						}
 					});
 				}
+				else if (opcode == L"kilpa")
+				{
+					if (tokens.size() > 2) throw std::wstring(L"Too many arguments for a loop");
+					lastif = false;
+					std::wstring arg = L"";
+					if (tokens.size() == 2)
+					{
+						if (tokens[1].literal) throw std::wstring(L"Jump variable cannot be literal");
+						arg = tokens[1].token;
+					}
+					newBlock->setType(BlockType::Shared);
+					newBlock->build(getChar, getLine);
+					this->lines.push_back([newBlock, arg](Scope& scope, Storage&, std::wstring& returnVal, int& execLine) { while (getBool(scope.getv(arg))) newBlock->exec({}, &scope); });
+				}
 				else throw std::wstring(L"Unknown first token");
 
 				tokens.clear();
@@ -263,21 +277,7 @@ void Block::build(const std::function<wchar_t()>& getChar, const std::function<i
 
 				Line newLine;
 				std::wstring opcode = tokens[0].token;
-				if (opcode == L"kilpa")
-				{
-					if (tokens.size() > 2) throw std::wstring(L"Too many arguments for a loop");
-					std::wstring argname = L"";
-					if (tokens.size() == 2)
-					{
-						if (tokens[1].literal) throw std::wstring(L"Jump line cannot be literal. It may be a number or a variable");
-						argname = tokens[1].token;
-					}
-					newLine = [argname](Scope& scope, Storage&, std::wstring&, int& execLine) {
-						if (argname == L"") execLine = -1;
-						else try { execLine = static_cast<int>(getNumber(argname)); } catch (...) { execLine = static_cast<int>(getNumber(scope.getv(argname))); }
-					};
-				}
-				else if (opcode == L"kintamasis")
+				if (opcode == L"kintamasis")
 				{
 					if (tokens.size() < 2) throw std::wstring(L"Variable name must be defined");
 					if (tokens[1].literal) throw std::wstring(L"Variable name cannot be literal");
