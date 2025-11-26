@@ -29,6 +29,53 @@ void PitonRuntime::run(int argc, char* argv[])
 
     try
     {
+        std::map<std::wstring, std::vector<std::wstring>> libOverrides;
+
+        try
+        {
+            const char* nm = "libs";
+            std::wstring content = ReadFileToWString(nm);
+            std::wstringstream libs(content);
+
+            std::wstring name = L"";
+            std::vector<std::wstring> overrides;
+            std::wstringstream currtext;
+            bool open = false;
+            wchar_t c;
+            while (libs.get(c))
+            {
+                switch (c)
+                {
+                case L'"':
+                    if (open)
+                    {
+                        open = false;
+                        if (name.empty()) name = currtext.str();
+                        else overrides.push_back(currtext.str());
+                        currtext.str(L"");
+                    }
+                    else open = true;
+                    break;
+                case L';':
+                    if (!open)
+                    {
+                        if (name.empty() || overrides.empty()) throw std::wstring(L"Invalid 'libs' file");
+                        libOverrides[name] = overrides;
+                        name = L"";
+                        overrides.clear();
+                        break;
+                    }
+                    [[fallthrough]];
+                default:
+                    if (open) currtext << c;
+                    break;
+                }
+            }
+            if (!name.empty()) throw std::wstring(L"Invalid 'libs' file");
+        }
+        catch (std::wstring) {}
+
+
         for (int i = 0; i < argc; i++)
             block.define(L"argv" + std::to_wstring(i));
         int line = 1;
@@ -67,8 +114,20 @@ void PitonRuntime::run(int argc, char* argv[])
                 moduleName = lib.first.substr(sp + 1);
             }
 
-            HMODULE hDll = LoadLibraryW((dllName + L".dll").c_str());
-            if (!hDll) throw std::wstring(L"Could not load library file '" + dllName + L".dll'. Error Code: " + std::to_wstring(GetLastError()));
+            std::vector<std::wstring> files;
+            std::map<std::wstring, std::vector<std::wstring>>::iterator iterator = libOverrides.find(dllName);
+            if (iterator == libOverrides.end()) files.push_back(dllName);
+            else files = iterator->second;
+
+            HMODULE hDll = NULL;
+            DWORD lerr = NULL;
+            for (const std::wstring& file : files)
+            {
+                hDll = LoadLibraryW((file + L".dll").c_str());
+                if (hDll) break;
+                else lerr = GetLastError();
+            }
+            if (!hDll) throw std::wstring(L"Could not load library file '" + dllName + L".dll'. Error Code: " + std::to_wstring(lerr));
 
             LoadFunc entry = (LoadFunc)GetProcAddress(hDll, "Load");
             if (!entry) throw std::wstring(L"Failed to load library '" + dllName + L"'");

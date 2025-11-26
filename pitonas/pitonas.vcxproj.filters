@@ -55,5 +55,8 @@
     <None Include="code.pi">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="libs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
