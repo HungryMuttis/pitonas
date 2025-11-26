@@ -22,9 +22,9 @@ bool getBool(std::wstring string)
 {
     if (string == L"taip") return true;
     else if (string == L"ne") return false;
-    else throw std::wstring(L"This function takes in a boolean");
+    else throw std::wstring(L"Could not convert '" + string + L"' to a boolean");
 }
-std::wstring formatNumber(long double number)
+static std::wstring formatNumber(long double number)
 {
     std::wstring str = std::to_wstring(number);
     if (str.find(L'.') != std::wstring::npos)
@@ -34,7 +34,7 @@ std::wstring formatNumber(long double number)
     }
     return str;
 }
-std::string ToString(const std::wstring& wstr)
+static std::string ToString(const std::wstring& wstr)
 {
     if (wstr.empty()) return std::string();
     int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
