@@ -129,14 +129,14 @@ extern "C" __declspec(dllexport) void Load(void* ctx, RegisterCallback callback,
 
         REG(L"ir", [](std::vector<std::wstring> args) -> std::wstring {
             if (args.size() < 2) throw std::wstring(L"This function takes in at least 2 arguments");
-            for (const auto& string : args)
+            for (const std::wstring& string : args)
                 if (!getBool(string)) return L"ne";
             return L"taip";
             });
 
         REG(L"arba", [](std::vector<std::wstring> args) -> std::wstring {
             if (args.size() < 2) throw std::wstring(L"This function takes in at least 2 arguments");
-            for (const auto& string : args)
+            for (const std::wstring& string : args)
                 if (getBool(string)) return L"taip";
             return L"ne";
             });
